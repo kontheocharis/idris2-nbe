@@ -1,0 +1,10 @@
+[custom.all.nbe]
+type = "local"
+path = "."
+ipkg = "nbe.ipkg"
+test = "test/test.ipkg"
+
+[custom.all.nbe-test]
+type = "local"
+path = "test"
+ipkg = "test.ipkg"
