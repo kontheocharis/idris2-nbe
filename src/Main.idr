@@ -3,6 +3,8 @@ module Main
 import Data.Fin
 import Data.Vect
 import Data.SnocList
+import Data.String
+import Data.List1
 
 -- A well-scoped NbE implementation
 
@@ -106,6 +108,10 @@ mutual
   weakEnv : Env m n -> Env (S m) n
   weakEnv [] = []
   weakEnv (x :: xs) = weak x :: weakEnv xs
+  
+%transform "weak" weak i = believe_me i
+%transform "weakSnoc" weakSnoc i = believe_me i
+%transform "weakEnv" weakEnv i = believe_me i
 
 id : (n : Nat) -> Env n n
 id Z = []
@@ -123,7 +129,7 @@ reify n (VApp i xs) = NApp (toIdx n i) (map (reify n) xs)
 
 nf n t = reify n (eval (id n) t)
 
--- Adding 2 + 2:
+-- Examples
 
 zero : Tm n
 zero = Lam (Lam (Var IZ))
@@ -140,5 +146,21 @@ add = Lam (Lam (Lam (Lam (
       (App (App (Var (IS (IS IZ))) (Var (IS IZ))) (Var IZ))
   ))))
 
+-- Yes we can do much better with Church numbers but I want a slow example
+mult : Tm n
+mult = Lam (Lam (
+    App (App (Var IZ) (App add (Var (IS IZ)))) zero
+  ))
+
+expo : Tm n -> Nat -> Tm n
+expo t 0 = one
+expo t (S n) = App (App mult t) (expo t n)
+
 main : IO ()
-main = printLn $ emb (nf 2 (App (App add two) two))
+main = do
+  l <- getLine
+  case map (stringToNatOrZ . pack) (forget $ split (== ' ') (unpack l)) of
+    [ctxSize, exp] => do
+        let res = emb (nf ctxSize (expo two exp))
+        print res
+    _ => putStrLn "invalid input"

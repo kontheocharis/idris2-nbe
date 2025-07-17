@@ -1,0 +1,262 @@
+constantine@8afbeb3c ~/git/nbe (master*) 
+$ for i in {5..7}; do echo "0 $i" | time node --stack-size=2000000 ./build/exec/nbe; done
+
+λ λ 1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 0)))))))))))))))))))))))))))))))node --stack-size=2000000 ./build/exec/nbe  0.05s user 0.03s system 59% cpu 0.130 total
+λ λ 1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 0)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))node --stack-size=2000000 ./build/exec/nbe  0.34s user 0.03s system 229% cpu 0.164 total
+
+<--- Last few GCs --->
+.3[79281:0x140008000]     6363 ms: Mark-Compact (reduce) 3983.2 (4053.0) -> 3983.0 (4053.0) MB, 838.21 / 0.00 ms  (+ 0.0 ms in 1 steps since start of marking, biggest step 0.0 ms, walltime since start of marking 851 ms) (average mu = 0.320, current mu = 0.3[79281:0x140008000]     7489 ms: Mark-Compact (reduce) 4039.0 (4109.8) -> 4038.8 (4109.8) MB, 836.67 / 0.00 ms  (+ 0.1 ms in 1 steps since start of marking, biggest step 0.1 ms, walltime since start of marking 845 ms) (average mu = 0.289, current mu = 0.2
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x1025b35a4 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 2: 0x10273c04c v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 3: 0x102910720 v8::internal::Heap::GarbageCollectionReasonToString(v8::internal::GarbageCollectionReason) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 4: 0x1029145d4 v8::internal::Heap::CollectGarbageShared(v8::internal::LocalHeap*, v8::internal::GarbageCollectionReason) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 5: 0x102911038 v8::internal::Heap::PerformGarbageCollection(v8::internal::GarbageCollector, v8::internal::GarbageCollectionReason, char const*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 6: 0x10290edc0 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 7: 0x10290e3e4 v8::internal::Heap::HandleGCRequest() [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 8: 0x1028a6e04 v8::internal::StackGuard::HandleInterrupts() [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 9: 0x102cd2d6c v8::internal::Runtime_StackGuardWithGap(int, unsigned long*, v8::internal::Isolate*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+10: 0x103030c44 Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+11: 0x10831290c 
+12: 0x108312828 
+13: 0x108312828 
+14: 0x108312828 
+15: 0x1083126b4 
+16: 0x108312828 
+17: 0x108313514 
+18: 0x108313208 
+19: 0x108312518 
+20: 0x108312828 
+21: 0x1083133a4 
+22: 0x108313208 
+23: 0x108312518 
+24: 0x108312828 
+25: 0x1083133a4 
+26: 0x108312518 
+27: 0x108312828 
+28: 0x1083133a4 
+29: 0x108313208 
+30: 0x108313208 
+31: 0x108313208 
+32: 0x108313208 
+33: 0x108313208 
+34: 0x108313208 
+35: 0x108312518 
+36: 0x108312828 
+37: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+38: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+39: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+40: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+41: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+42: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+43: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+44: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+45: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+46: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+47: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+48: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+49: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+50: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+51: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+52: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+53: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+54: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+55: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+56: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+57: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+58: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+59: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+60: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+61: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+62: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+63: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+64: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+65: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+66: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+67: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+68: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+69: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+70: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+71: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+72: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+73: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+74: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+75: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+76: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+77: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+78: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+79: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+80: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+81: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+82: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+83: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+84: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+85: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+86: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+87: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+88: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+89: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+90: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+91: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+92: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+93: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+94: 0x102fa83e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+95: 0x102fa650c Builtins_JSEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+96: 0x102fa61f4 Builtins_JSEntry [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+97: 0x10287dbc8 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+98: 0x10287d014 v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::Handle<v8::internal::Object>, v8::internal::Handle<v8::internal::Object>, int, v8::internal::Handle<v8::internal::Object>*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+99: 0x102757904 v8::Function::Call(v8::Local<v8::Context>, v8::Local<v8::Value>, int, v8::Local<v8::Value>*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+100: 0x1025943e4 node::builtins::BuiltinLoader::CompileAndCall(v8::Local<v8::Context>, char const*, node::Realm*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+101: 0x10262414c node::Realm::ExecuteBootstrapper(char const*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+102: 0x102577bb4 node::StartExecution(node::Environment*, std::__1::function<v8::MaybeLocal<v8::Value> (node::StartExecutionCallbackInfo const&)>) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+103: 0x1024e13a4 node::LoadEnvironment(node::Environment*, std::__1::function<v8::MaybeLocal<v8::Value> (node::StartExecutionCallbackInfo const&)>, std::__1::function<void (node::Environment*, v8::Local<v8::Value>, v8::Local<v8::Value>)>) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+104: 0x1025f3394 node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+105: 0x1025f3104 node::NodeMainInstance::Run() [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+106: 0x10257afa0 node::Start(int, char**) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+107: 0x19899eb98 start [/usr/lib/dyld]
+^C^C^C^C^C^C^C^C^C^C^C^C^C^C^C^C^C
+
+constantine@8afbeb3c ~/git/nbe (master*) 
+$ for i in {5..7}; do echo "100 $i" | time node --stack-size=2000000 ./build/exec/nbe; done
+
+λ λ 1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 (1 0)))))))))))))))))))))))))))))))node --stack-size=2000000 ./build/exec/nbe  1.41s user 0.23s system 278% cpu 0.588 total
+
+<--- Last few GCs --->
+
+[80121:0x120008000]    10119 ms: Mark-Compact 4051.7 (4137.8) -> 4051.7 (4137.8) MB, 806.92 / 0.00 ms  (average mu = 0.317, current mu = 0.062) allocation failure; scavenge might not succeed
+[80121:0x120008000]    11984 ms: Mark-Compact 4067.4 (4137.8) -> 4067.4 (4169.8) MB, 1862.04 / 0.00 ms  (average mu = 0.113, current mu = 0.001) allocation failure; scavenge might not succeed
+
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x10014b5a4 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 2: 0x1002d404c v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 3: 0x1004a8720 v8::internal::Heap::GarbageCollectionReasonToString(v8::internal::GarbageCollectionReason) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 4: 0x1004a71fc v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 5: 0x10049da14 v8::internal::HeapAllocator::AllocateRawWithLightRetrySlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 6: 0x10049e274 v8::internal::HeapAllocator::AllocateRawWithRetryOrFailSlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 7: 0x1004832e4 v8::internal::Factory::NewFillerObject(int, v8::internal::AllocationAlignment, v8::internal::AllocationType, v8::internal::AllocationOrigin) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 8: 0x10086aff4 v8::internal::Runtime_AllocateInYoungGeneration(int, unsigned long*, v8::internal::Isolate*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+ 9: 0x100bc8c44 Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+10: 0x105ed090c 
+11: 0x105ed085c 
+12: 0x105ed085c 
+13: 0x105ed085c 
+14: 0x105ed085c 
+15: 0x105ed085c 
+16: 0x105ed085c 
+17: 0x105ed085c 
+18: 0x105ed085c 
+19: 0x105ed085c 
+20: 0x105ed085c 
+21: 0x105ed085c 
+22: 0x105ed085c 
+23: 0x105ed085c 
+24: 0x105ed0718 
+25: 0x105ed085c 
+26: 0x105ed085c 
+27: 0x105ed085c 
+28: 0x105ed0718 
+29: 0x105ed0718 
+30: 0x105ed0718 
+31: 0x105ed0718 
+32: 0x105ed085c 
+33: 0x105ed085c 
+34: 0x105ed0718 
+35: 0x105ed0718 
+36: 0x105ed085c 
+37: 0x105ed085c 
+38: 0x105ed0718 
+39: 0x105ed0718 
+40: 0x105ed085c 
+41: 0x105ed085c 
+42: 0x105ed0718 
+43: 0x105ed0718 
+44: 0x105ed0718 
+45: 0x105ed0718 
+46: 0x105ed0718 
+47: 0x105ed0718 
+48: 0x105ed0718 
+49: 0x105ed0718 
+50: 0x105ed0718 
+51: 0x105ed0718 
+52: 0x105ed0718 
+53: 0x105ed0718 
+54: 0x105ed0718 
+55: 0x105ed0718 
+56: 0x105ed0718 
+57: 0x105ed085c 
+58: 0x105eccd44 
+59: 0x105ecd920 
+60: 0x105ecccec 
+61: 0x105ecd920 
+62: 0x105ecccec 
+63: 0x105ecd920 
+64: 0x105ecccec 
+65: 0x105ecd920 
+66: 0x105ecccec 
+67: 0x105ecd920 
+68: 0x105ecccec 
+69: 0x105ecd920 
+70: 0x105ecccec 
+71: 0x105ecd920 
+72: 0x105ecccec 
+73: 0x105ecd920 
+74: 0x105ecccec 
+75: 0x105ecd920 
+76: 0x105ecccec 
+77: 0x105ecd920 
+78: 0x105ecccec 
+79: 0x105ecd920 
+80: 0x105ecccec 
+81: 0x105ecd920 
+82: 0x105ecccec 
+83: 0x105ecd920 
+84: 0x105ecccec 
+85: 0x105ecd920 
+86: 0x105ecccec 
+87: 0x105ecd920 
+88: 0x105ecccec 
+89: 0x105ecd920 
+90: 0x105ecccec 
+91: 0x105ecd920 
+92: 0x105ecccec 
+93: 0x100b40f44 Builtins_InterpreterEnterAtBytecode [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+94: 0x105ecccec 
+95: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+96: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+97: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+98: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+99: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+100: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+101: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+102: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+103: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+104: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+105: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+106: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+107: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+108: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+109: 0x100b403e4 Builtins_InterpreterEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+110: 0x100b3e50c Builtins_JSEntryTrampoline [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+111: 0x100b3e1f4 Builtins_JSEntry [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+112: 0x100415bc8 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+113: 0x100415014 v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::Handle<v8::internal::Object>, v8::internal::Handle<v8::internal::Object>, int, v8::internal::Handle<v8::internal::Object>*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+114: 0x1002ef904 v8::Function::Call(v8::Local<v8::Context>, v8::Local<v8::Value>, int, v8::Local<v8::Value>*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+115: 0x10012c3e4 node::builtins::BuiltinLoader::CompileAndCall(v8::Local<v8::Context>, char const*, node::Realm*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+116: 0x1001bc14c node::Realm::ExecuteBootstrapper(char const*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+117: 0x10010fbb4 node::StartExecution(node::Environment*, std::__1::function<v8::MaybeLocal<v8::Value> (node::StartExecutionCallbackInfo const&)>) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+118: 0x1000793a4 node::LoadEnvironment(node::Environment*, std::__1::function<v8::MaybeLocal<v8::Value> (node::StartExecutionCallbackInfo const&)>, std::__1::function<void (node::Environment*, v8::Local<v8::Value>, v8::Local<v8::Value>)>) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+119: 0x10018b394 node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+120: 0x10018b104 node::NodeMainInstance::Run() [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+121: 0x100112fa0 node::Start(int, char**) [/Users/constantine/.nvm/versions/node/v20.17.0/bin/node]
+122: 0x19899eb98 start [/usr/lib/dyld]
+^C^C^C^C^C^C^C^C^C
