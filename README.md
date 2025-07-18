@@ -20,11 +20,12 @@ pragma. The value `-` indicates that the process crashed or ran out of memory.
 
 ### Scheme backend
 
-| Context Length | n | Church Numeral (2^n) | Before Optimisation | After Optimisation
+| Context Length | n | Church Numeral (2^n) | Before Optimisation | After Optimisation |
+| - | - | - | - | - |
 | 0 | 5 | 32 | 3.11e-4s |  6e-6s |
 | 100 | 5 | 32 | 0.218477s | 3e-5s |
 | 0 | 6 | 64 | 0.068966s | 6e-6s |
-| 100 | 6 | 64 | -0.293329s | 3.6e-5s |
+| 100 | 6 | 64 | 0.293329s | 3.6e-5s |
 | 0 | 7 | 128 | 0.662255s |  1.7e-5s |
 | 100 | 7 | 128   | - | 7.3e-5s |
 | 0 | 8 | 256     | - | 3.1e-5s |
@@ -46,7 +47,8 @@ pragma. The value `-` indicates that the process crashed or ran out of memory.
 
 ### JS backend
 
-| Context Length | n | Church Numeral (2^n) | Before Optimisation | After Optimisation
+| Context Length | n | Church Numeral (2^n) | Before Optimisation | After Optimisation |
+| - | - | - | - | - |
 | 0   | 5  | 32    | 0.002205833s |  0.000814083s |
 | 100 | 5  | 32    | 0.519502292s |  0.002432876s |
 | 0   | 6  | 64    | 0.136811542s |  0.000303583s |
