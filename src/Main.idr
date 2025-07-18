@@ -5,9 +5,14 @@ import Data.Vect
 import Data.SnocList
 import Data.String
 import Data.List1
+import Data.Ref
+import Debug.Trace
+import System.Clock
+import Prelude.Num
+
+data Optim = Yes | No
 
 -- A well-scoped NbE implementation
-
 data Tm : Nat -> Type
 data Val : Nat -> Type
 data Nf : Nat -> Type
@@ -92,6 +97,10 @@ eval : Env n m -> Tm m -> Val n
 reify : (n : Nat) -> Val n -> Nf n
 nf : (n : Nat) -> Tm n -> Nf n
 
+-- Optimised variants
+reify' : (n : Nat) -> Val n -> Nf n
+nf' : (n : Nat) -> Tm n -> Nf n
+
 -- Identity detection does not work for mutually-recursive
 -- functions, and we cannot abstract over it.
 
@@ -108,14 +117,26 @@ mutual
   weakEnv : Env m n -> Env (S m) n
   weakEnv [] = []
   weakEnv (x :: xs) = weak x :: weakEnv xs
-  
-%transform "weak" weak i = believe_me i
-%transform "weakSnoc" weakSnoc i = believe_me i
-%transform "weakEnv" weakEnv i = believe_me i
+
+%inline
+weak' : {auto optim : Optim} -> Val n -> Val (S n)
+weak' i = believe_me i
+
+%inline
+weakSnoc' : {auto optim : Optim} -> SnocList (Val n) -> SnocList (Val (S n))
+weakSnoc' i = believe_me i
+
+%inline
+weakEnv' : {auto optim : Optim} -> Env m n -> Env (S m) n
+weakEnv' i = believe_me i
 
 id : (n : Nat) -> Env n n
 id Z = []
 id (S n) = VVar (last n) :: weakEnv (id n)
+
+id' : (n : Nat) -> Env n n
+id' Z = []
+id' (S n) = VVar (last n) :: weakEnv' (id' n)
 
 eval (v :: env) (Var IZ) = v
 eval (v :: env) (Var (IS i)) = eval env (Var i)
@@ -127,7 +148,14 @@ eval env (Lam f) = VLam env f
 reify n (VLam env t) = NLam (reify (S n) (eval (VVar (last n) :: weakEnv env) t))
 reify n (VApp i xs) = NApp (toIdx n i) (map (reify n) xs)
 
+-- Optimised (inlined)
+reify' n (VLam env t) = NLam (reify' (S n) (eval (VVar (last n) :: weakEnv' env) t))
+reify' n (VApp i xs) = NApp (toIdx n i) (map (reify' n) xs)
+
 nf n t = reify n (eval (id n) t)
+
+-- Optimised (inlined)
+nf' n t = reify' n (eval (id n) t)
 
 -- Examples
 
@@ -156,11 +184,42 @@ expo : Tm n -> Nat -> Tm n
 expo t 0 = one
 expo t (S n) = App (App mult t) (expo t n)
 
+-- Returns a time in s
+%inline
+runWithOptim : (ctxSize : Nat) -> (inputSize : Nat) -> (optim : Optim) -> IO Double
+runWithOptim ctxSize inputSize Yes = do
+  start <- nanoseconds <$> clockTime Process
+  res <- pure $ emb (nf' ctxSize (expo two inputSize))
+  end <- nanoseconds <$> clockTime Process
+  pure $ fromInteger (end - start) / 1000000000.0
+runWithOptim ctxSize inputSize No = do
+  start <- nanoseconds <$> clockTime Process
+  res <- pure $ emb (nf ctxSize (expo two inputSize))
+  end <- nanoseconds <$> clockTime Process
+  pure $ fromInteger (end - start) / 1000000000.0
+  
+measure : IO ()
+measure = do
+  putStrLn $ "| Context Length | n | Church Numeral (2^n) | After Optimisation"
+
+  for_ [5 .. 15] $ \inputSize => do
+    for_ (the (List _) [0, 100]) $ \ctxSize => do
+      m <- runWithOptim ctxSize inputSize Yes
+      putStrLn $ "| \{
+        show ctxSize} | \{
+        show inputSize} | \{
+        show $ power 2 inputSize} | \{
+        show m}s |"
+
+  putStrLn $ "\n| Context Length | n | Church Numeral (2^n) | Before Optimisation"
+  for_ [5 .. 13] $ \inputSize => do
+    for_ (the (List _) [0, 100]) $ \ctxSize => do
+      m <- runWithOptim ctxSize inputSize No
+      putStrLn $ "| \{
+        show ctxSize} | \{
+        show inputSize} | \{
+        show $ power 2 inputSize} | \{
+        show m}s |"
+
 main : IO ()
-main = do
-  l <- getLine
-  case map (stringToNatOrZ . pack) (forget $ split (== ' ') (unpack l)) of
-    [ctxSize, exp] => do
-        let res = emb (nf ctxSize (expo two exp))
-        print res
-    _ => putStrLn "invalid input"
+main = measure
