@@ -11,6 +11,8 @@ import System.Clock
 import Prelude.Num
 
 data Optim = Yes | No
+           
+%default total
 
 -- A well-scoped NbE implementation
 data Tm : Nat -> Type
@@ -53,6 +55,17 @@ toIdx : (n : Nat) -> Lvl n -> Idx n
 toIdx (S n) LZ = first n
 toIdx (S n) (LS i) = shiftIdx (toIdx n i)
 
+pred : Idx (S n) -> Idx (S n)
+pred IZ = IZ
+pred (IS i) = shiftIdx i
+
+subtr : (n : Nat) -> Lvl (S n) -> Idx (S n)
+subtr n' LZ = first n'
+subtr n' (LS k') = pred (subtr n' (assert_smaller (LS k') (weakLvl k')))
+    
+toIdx' : (n : Nat) -> Lvl n -> Idx n
+toIdx' (S n') k = subtr n' k
+
 data Tm where
   Lam : Tm (S n) -> Tm n
   App : Tm n -> Tm n -> Tm n
@@ -63,6 +76,7 @@ Show (Idx n) where
   
 Show (Tm n)
 
+covering
 showSingle : Tm n -> String
 showSingle (Var i) = show i
 showSingle v = "(\{show v})"
