@@ -8,6 +8,8 @@ import Data.List1
 import Data.Ref
 import Debug.Trace
 import System.Clock
+import System.File.Process
+import System.File.Virtual
 import Prelude.Num
 
 data Optim = Yes | No
@@ -107,13 +109,13 @@ VVar : Lvl n -> Val n
 VVar i = VApp i [<]
 
 -- All the NbE functions
-eval : Env n m -> Tm m -> Val n
-reify : (n : Nat) -> Val n -> Nf n
-nf : (n : Nat) -> Tm n -> Nf n
+covering eval : Env n m -> Tm m -> Val n
+covering reify : (n : Nat) -> Val n -> Nf n
+covering nf : (n : Nat) -> Tm n -> Nf n
 
 -- Optimised variants
-reify' : (n : Nat) -> Val n -> Nf n
-nf' : (n : Nat) -> Tm n -> Nf n
+covering reify' : (n : Nat) -> Val n -> Nf n
+covering nf' : (n : Nat) -> Tm n -> Nf n
 
 -- Identity detection does not work for mutually-recursive
 -- functions, and we cannot abstract over it.
@@ -198,42 +200,104 @@ expo : Tm n -> Nat -> Tm n
 expo t 0 = one
 expo t (S n) = App (App mult t) (expo t n)
 
+church : Nat -> Tm n
+church Z = zero
+church (S k) = App (App add one) (church k)
+
+square : Nat -> Tm n
+square n = App (App mult (church n)) (church n)
+
+clockToSecs : Clock type -> Double
+clockToSecs c = fromInteger (seconds c) + fromInteger (nanoseconds c) / 1000000000.0
+
 -- Returns a time in s
-%inline
+covering %inline
 runWithOptim : (ctxSize : Nat) -> (inputSize : Nat) -> (optim : Optim) -> IO Double
 runWithOptim ctxSize inputSize Yes = do
-  start <- nanoseconds <$> clockTime Process
-  res <- pure $ emb (nf' ctxSize (expo two inputSize))
-  end <- nanoseconds <$> clockTime Process
-  pure $ fromInteger (end - start) / 1000000000.0
+  start <- clockToSecs <$> clockTime Process
+  res <- pure $ emb (nf' ctxSize (square inputSize))
+  end <- clockToSecs <$> clockTime Process
+  pure $ end - start
 runWithOptim ctxSize inputSize No = do
-  start <- nanoseconds <$> clockTime Process
-  res <- pure $ emb (nf ctxSize (expo two inputSize))
-  end <- nanoseconds <$> clockTime Process
-  pure $ fromInteger (end - start) / 1000000000.0
-  
+  start <- clockToSecs <$> clockTime Process
+  res <- pure $ emb (nf ctxSize (square inputSize))
+  end <- clockToSecs <$> clockTime Process
+  pure $ end - start
+
+median : List Double -> Double
+median xs =
+  let sorted = sort xs
+      mid = divNatNZ (Prelude.List.length sorted) 2 %search
+  in case List.drop mid sorted of
+       (v :: _) => v
+       [] => 0.0
+
+samples : Nat
+samples = 10
+
+timeout : Double
+timeout = 10.0
+
+covering
+collectSamples : (ctxSize : Nat) -> (inputSize : Nat) -> (optim : Optim)
+              -> (remaining : Nat) -> (acc : List Double) -> IO (List Double)
+collectSamples _ _ _ Z acc = pure acc
+collectSamples ctxSize inputSize optim (S k) acc = do
+  t <- runWithOptim ctxSize inputSize optim
+  if t > timeout
+    then pure acc -- stop early, don't include the timed-out run
+    else collectSamples ctxSize inputSize optim k (t :: acc)
+
+covering
+runSampled : (ctxSize : Nat) -> (inputSize : Nat) -> (optim : Optim) -> IO (Maybe Double)
+runSampled ctxSize inputSize optim = do
+  -- Warmup run (also acts as timeout check)
+  warmup <- runWithOptim ctxSize inputSize optim
+  if warmup > timeout
+    then pure Nothing
+    else do
+      times <- collectSamples ctxSize inputSize optim samples []
+      case times of
+        [] => pure Nothing
+        _  => pure $ Just (median times)
+
+covering
+showResult : Maybe Double -> String
+showResult Nothing = "-"
+showResult (Just t) = "\{show t}s"
+
+covering
+printLn : String -> IO ()
+printLn s = do
+  putStrLn s
+  fflush stdout
+
+covering
+bench : (optim : Optim) -> (ctxSize : Nat) -> (inputSize : Nat) -> IO ()
+bench optim ctxSize inputSize = do
+  m <- runSampled ctxSize inputSize optim
+  printLn $ "| \{
+    show inputSize} | \{
+    show $ inputSize * inputSize} | \{
+    showResult m} |"
+
+covering
 measure : IO ()
 measure = do
-  putStrLn $ "| Context Length | n | Church Numeral (2^n) | After Optimisation"
+  let ctx = 10
 
-  for_ [5 .. 15] $ \inputSize => do
-    for_ (the (List _) [0, 100]) $ \ctxSize => do
-      m <- runWithOptim ctxSize inputSize Yes
-      putStrLn $ "| \{
-        show ctxSize} | \{
-        show inputSize} | \{
-        show $ power 2 inputSize} | \{
-        show m}s |"
+  printLn $ "| n | Church Numeral (n^2) | Before Optimisation (median of \{show samples}) |"
+  printLn $ "| - | - | - |"
 
-  putStrLn $ "\n| Context Length | n | Church Numeral (2^n) | Before Optimisation"
-  for_ [5 .. 13] $ \inputSize => do
-    for_ (the (List _) [0, 100]) $ \ctxSize => do
-      m <- runWithOptim ctxSize inputSize No
-      putStrLn $ "| \{
-        show ctxSize} | \{
-        show inputSize} | \{
-        show $ power 2 inputSize} | \{
-        show m}s |"
+  for_ [20, 40 .. 500] $ \n => do
+    bench No ctx n
 
+  printLn $ "\n| n | Church Numeral (n^2) | After Optimisation (median of \{show samples}) |"
+  printLn $ "| - | - | - |"
+
+  for_ [20, 40 .. 500] $ \n => do
+    bench Yes ctx n
+
+covering
 main : IO ()
 main = measure
