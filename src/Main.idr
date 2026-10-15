@@ -7,12 +7,13 @@ import Data.String
 import Data.List1
 import Data.Ref
 import Debug.Trace
+import System
 import System.Clock
 import System.File.Process
 import System.File.Virtual
 import Prelude.Num
 
-data Optim = Yes | No
+data Optim = Unoptimised | Weakening | WeakeningAndLevels
            
 %default total
 
@@ -68,6 +69,10 @@ subtr n' (LS k') = pred (subtr n' (assert_smaller (LS k') (weakLvl k')))
 toIdx' : (n : Nat) -> Lvl n -> Idx n
 toIdx' (S n') k = subtr n' k
 
+%inline
+toIdxNative : (n : Nat) -> Lvl n -> Idx n
+toIdxNative n l = believe_me (minus n (S (believe_me l)))
+
 data Tm where
   Lam : Tm (S n) -> Tm n
   App : Tm n -> Tm n -> Tm n
@@ -116,6 +121,8 @@ covering nf : (n : Nat) -> Tm n -> Nf n
 -- Optimised variants
 covering reify' : (n : Nat) -> Val n -> Nf n
 covering nf' : (n : Nat) -> Tm n -> Nf n
+covering reify'' : (n : Nat) -> Val n -> Nf n
+covering nf'' : (n : Nat) -> Tm n -> Nf n
 
 -- Identity detection does not work for mutually-recursive
 -- functions, and we cannot abstract over it.
@@ -168,10 +175,15 @@ reify n (VApp i xs) = NApp (toIdx n i) (map (reify n) xs)
 reify' n (VLam env t) = NLam (reify' (S n) (eval (VVar (last n) :: weakEnv' env) t))
 reify' n (VApp i xs) = NApp (toIdx n i) (map (reify' n) xs)
 
+reify'' n (VLam env t) = NLam (reify'' (S n) (eval (VVar (last n) :: weakEnv' env) t))
+reify'' n (VApp i xs) = NApp (toIdxNative n i) (map (reify'' n) xs)
+
 nf n t = reify n (eval (id n) t)
 
 -- Optimised (inlined)
-nf' n t = reify' n (eval (id n) t)
+nf' n t = reify' n (eval (id' n) t)
+
+nf'' n t = reify'' n (eval (id' n) t)
 
 -- Examples
 
@@ -213,14 +225,19 @@ clockToSecs c = fromInteger (seconds c) + fromInteger (nanoseconds c) / 10000000
 -- Returns a time in s
 covering %inline
 runWithOptim : (ctxSize : Nat) -> (inputSize : Nat) -> (optim : Optim) -> IO Double
-runWithOptim ctxSize inputSize Yes = do
+runWithOptim ctxSize inputSize Unoptimised = do
+  start <- clockToSecs <$> clockTime Process
+  res <- pure $ emb (nf ctxSize (square inputSize))
+  end <- clockToSecs <$> clockTime Process
+  pure $ end - start
+runWithOptim ctxSize inputSize Weakening = do
   start <- clockToSecs <$> clockTime Process
   res <- pure $ emb (nf' ctxSize (square inputSize))
   end <- clockToSecs <$> clockTime Process
   pure $ end - start
-runWithOptim ctxSize inputSize No = do
+runWithOptim ctxSize inputSize WeakeningAndLevels = do
   start <- clockToSecs <$> clockTime Process
-  res <- pure $ emb (nf ctxSize (square inputSize))
+  res <- pure $ emb (nf'' ctxSize (square inputSize))
   end <- clockToSecs <$> clockTime Process
   pure $ end - start
 
@@ -230,22 +247,22 @@ median xs =
       mid = divNatNZ (Prelude.List.length sorted) 2 %search
   in case List.drop mid sorted of
        (v :: _) => v
-       [] => 0.0
+       [] => 0
 
 samples : Nat
 samples = 10
 
 timeout : Double
-timeout = 10.0
+timeout = 10
 
 covering
 collectSamples : (ctxSize : Nat) -> (inputSize : Nat) -> (optim : Optim)
-              -> (remaining : Nat) -> (acc : List Double) -> IO (List Double)
+  -> (remaining : Nat) -> (acc : List Double) -> IO (List Double)
 collectSamples _ _ _ Z acc = pure acc
 collectSamples ctxSize inputSize optim (S k) acc = do
   t <- runWithOptim ctxSize inputSize optim
   if t > timeout
-    then pure acc -- stop early, don't include the timed-out run
+    then pure acc
     else collectSamples ctxSize inputSize optim k (t :: acc)
 
 covering
@@ -263,8 +280,8 @@ runSampled ctxSize inputSize optim = do
 
 covering
 showResult : Maybe Double -> String
-showResult Nothing = "-"
-showResult (Just t) = "\{show t}s"
+showResult Nothing = "nan"
+showResult (Just t) = show t
 
 covering
 printLn : String -> IO ()
@@ -273,31 +290,23 @@ printLn s = do
   fflush stdout
 
 covering
-bench : (optim : Optim) -> (ctxSize : Nat) -> (inputSize : Nat) -> IO ()
-bench optim ctxSize inputSize = do
-  m <- runSampled ctxSize inputSize optim
-  printLn $ "| \{
-    show inputSize} | \{
-    show $ inputSize * inputSize} | \{
-    showResult m} |"
+bench : (ctxSize : Nat) -> (inputSize : Nat) -> IO ()
+bench ctxSize inputSize = do
+  ms <- traverse (runSampled ctxSize inputSize) [Unoptimised, Weakening, WeakeningAndLevels]
+  printLn $ unwords $ [show ctxSize, show inputSize, show (inputSize * inputSize)] ++ map showResult ms
 
 covering
-measure : IO ()
-measure = do
-  let ctx = 10
-
-  printLn $ "| n | Church Numeral (n^2) | Before Optimisation (median of \{show samples}) |"
-  printLn $ "| - | - | - |"
-
-  for_ [20, 40 .. 500] $ \n => do
-    bench No ctx n
-
-  printLn $ "\n| n | Church Numeral (n^2) | After Optimisation (median of \{show samples}) |"
-  printLn $ "| - | - | - |"
-
-  for_ [20, 40 .. 500] $ \n => do
-    bench Yes ctx n
+measure : (ctxSizes : List Nat) -> (inputSizes : List Nat) -> IO ()
+measure ctxSizes inputSizes = do
+  printLn "ctx n church unoptimised weakening levels"
+  for_ ctxSizes $ \ctx => for_ inputSizes $ \n => bench ctx n
 
 covering
 main : IO ()
-main = measure
+main = do
+  [_, sweep] <- getArgs
+    | _ => die "incorrect args"
+  case sweep of
+    "size" => measure [10] [20, 40 .. 500]
+    "context" => measure [0, 100 .. 1000] [100]
+    _ => die "incorrect args"
